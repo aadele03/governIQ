@@ -173,10 +173,6 @@ footer{background:transparent;border:0;border-top:1px solid var(--line);border-r
 .scalestrip .dot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;}
 .stat .big.nm{font-size:19px;line-height:1.25;}
 .tb th.r,.tb td.r{text-align:right;}
-.tb.m1tbl th:nth-child(2),.tb.m1tbl td:nth-child(2){padding-right:34px;}
-.tb.m1tbl .idef{border-bottom:1px dotted var(--muted);cursor:default;}
-#idef-tip{position:fixed;z-index:9999;max-width:260px;background:#2B2B28;color:#fff;font-size:12px;line-height:1.45;padding:8px 11px;border-radius:7px;box-shadow:0 6px 18px rgba(0,0,0,.28);pointer-events:none;opacity:0;transition:opacity .12s ease;}
-#idef-tip.show{opacity:1;}
 .mh-ic{display:inline-flex;width:22px;height:22px;vertical-align:-4px;margin-right:8px;color:var(--accent);}
 .mh-ic svg{width:22px;height:22px;}
 @media(max-width:780px){.navsec{flex-basis:100%;}}
@@ -228,13 +224,31 @@ footer{background:transparent;border:0;border-top:1px solid var(--line);border-r
 }
 footer{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:12px;color:var(--muted);}
 footer b{color:#4a4943;}
-.brand .brow{display:flex;align-items:center;gap:9px;margin-bottom:2px;}.brand .brow>span{font-size:18px;font-weight:700;letter-spacing:-.2px;color:#FAF9F5;}.brlogo{height:42px;width:42px;flex:0 0 42px;}
+.brand .brow{display:flex;align-items:center;gap:9px;margin-bottom:2px;cursor:pointer;border-radius:8px;}
+.brand .brow:hover{opacity:.85;}.brand .brow>span{font-size:18px;font-weight:700;letter-spacing:-.2px;color:#FAF9F5;}.brlogo{height:42px;width:42px;flex:0 0 42px;}
+/* ===== mobile hamburger drawer ===== */
+.topbar{display:none;align-items:center;gap:12px;position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line);margin:-16px -12px 14px;padding:10px 14px;}
+.hamb{display:inline-flex;align-items:center;justify-content:center;width:44px;height:40px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;color:var(--accent);}
+.hamb svg{width:22px;height:22px;}
+.tbtitle{font-size:17px;font-weight:700;color:var(--accent);}
+.navscrim{display:none;}
+@media(max-width:780px){
+ .topbar{display:flex;}
+ .side{position:fixed;left:0;top:0;height:100vh;width:268px;transform:translateX(-100%);transition:transform .25s ease;z-index:60;padding:18px 14px;box-shadow:2px 0 22px rgba(0,0,0,.30);}
+ body.navopen .side{transform:translateX(0);}
+ .nav{flex-direction:column;flex-wrap:nowrap;overflow-x:visible;gap:3px;}
+ .nav button{white-space:normal;flex:0 0 auto;}
+ .navsec{flex-basis:auto;}
+ .navscrim{position:fixed;inset:0;background:rgba(20,20,19,.45);z-index:55;}
+ body.navopen .navscrim{display:block;}
+ body.navopen{overflow:hidden;}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side">
-    <div class="brand"><span class="brow"><svg class="brlogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="GovernIQ crest">
+    <div class="brand"><span class="brow" onclick="show('1')" role="button" tabindex="0" title="Go to Dashboard" onkeydown="if(event.key==='Enter'||event.key===' ')show('1')"><svg class="brlogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="GovernIQ crest">
   <polygon points="96,98 126,56 234,56 264,98" fill="#FAF9F5"/>
   <line x1="128" y1="73" x2="232" y2="73" stroke="#788C5D" stroke-width="5"/>
   <line x1="128" y1="85" x2="232" y2="85" stroke="#788C5D" stroke-width="5"/>
@@ -248,6 +262,7 @@ footer b{color:#4a4943;}
     <nav class="nav" id="nav"></nav>
   </aside>
   <main class="main">
+    <header class="topbar"><button class="hamb" id="hambBtn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><span class="tbtitle" id="tbTitle">Dashboard</span></header>
     <section class="mod" id="mod1"></section>
     <section class="mod" id="mod2"></section>
     <section class="mod" id="mod3"></section>
@@ -262,12 +277,14 @@ footer b{color:#4a4943;}
     <section class="mod" id="mod12"></section>
     <section class="mod" id="mod13"></section>
   </main>
+  <div class="navscrim" id="navscrim"></div>
 </div>
 
 <script>
 /* ============ SHARED DATA (issues, 2020 Q1 – 2026 Q2) ============ */
-// Q_LABELS / NQ are derived from the data below (see after ISSUES) so the
-// quarterly axis auto-extends whenever a new quarter of scores is appended.
+const YEARS=[2020,2021,2022,2023,2024,2025,2026];
+const Q_LABELS=[];YEARS.forEach(y=>{const qn=(y===2026)?2:4;for(let q=1;q<=qn;q++)Q_LABELS.push(y+" Q"+q);});
+const NQ=Q_LABELS.length; // 26
 const ISSUES=[
  {key:"traffic",name:"Traffic",color:"#D97757",scores:[2.8,2.9,2.6,2.5,2.5,2.4,2.4,2.3,2.3,2.2,2.2,2.1,2.1,1.8,1.7,1.9,2.0,2.1,2.0,2.1,2.0,2.3,2.2,2.1,2.0,2.0]},
  {key:"roads",name:"Roads",color:"#C2A36B",scores:[2.5,2.6,2.4,2.4,2.4,2.3,2.2,2.4,2.4,2.3,2.1,2.1,2.2,2.2,2.1,2.3,2.4,2.2,2.2,2.4,2.4,2.2,2.1,2.4,2.5,2.3]},
@@ -283,67 +300,10 @@ const ISSUES=[
  {key:"governance",name:"Governance & taxation",color:"#A8923C",scores:[2.4,2.2,2.2,1.8,2.1,2.1,2.0,2.0,2.0,2.0,1.9,1.9,1.8,1.9,1.9,2.0,2.1,2.0,1.9,2.0,2.1,2.1,2.0,2.1,1.9,1.9]}
 ];
 const byKey=k=>ISSUES.find(i=>i.key===k);
-// Short, plain-language definition of what each issue covers (shown on hover).
-const ISSUE_DEFS={
- traffic:"Road congestion, commute times and the reliability of buses, BRT, danfos and ferries.",
- roads:"Condition and upkeep of roads — potholes, resurfacing, road drainage and ongoing roadworks.",
- flooding:"Seasonal flash floods, drainage capacity and water-logging during the rains.",
- waste:"Refuse collection, street cleanliness and the reliability of PSP/LAWMA disposal.",
- cost:"Affordability of everyday essentials — food, transport fares, fuel and general prices.",
- security:"Personal safety from crime — robbery, theft, cultism and area-boy harassment.",
- healthcare:"Access to and quality of hospitals, clinics, medicines and emergency care.",
- education:"Availability and quality of public schools — facilities, teachers and fees.",
- housing:"Rent levels, tenancy rights, eviction protection and availability of decent housing.",
- markets:"Conditions for traders and shoppers — market access, demolitions, levies and goods supply.",
- power:"Reliability of grid supply — outages, tariffs (e.g. Band A) and generator dependence.",
- governance:"Trust in government — service delivery, transparency and the tax/levy burden."
-};
-// Quarter labels built to match the data length, starting at 2020 Q1.
-const QCOUNT=ISSUES[0].scores.length;
-const Q_LABELS=[];{let _y=2020,_q=1;for(let _k=0;_k<QCOUNT;_k++){Q_LABELS.push(_y+" Q"+_q);if(++_q>4){_q=1;_y++;}}}
-const NQ=Q_LABELS.length;
-// Labels auto-derive from the current date. To pin to a fixed reporting
-// date instead, set PIN to a "YYYY-MM-DD" string (e.g. "2026-06-21").
-const PIN=null;
-const CFG=(function(){
-  const now=PIN?new Date(PIN+"T00:00:00"):new Date();
-  const MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const ABBR=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const y=now.getFullYear(), m=now.getMonth();           // month 0–11
-  const q=Math.floor(m/3)+1;                              // quarter 1–4
-  const nq=q===4?1:q+1, nqY=q===4?y+1:y;                  // next quarter (rolls year)
-  const s=new Date(y,m-2,1), sM=s.getMonth(), sY=s.getFullYear(); // trailing 3 months
-  const win=sY===y?`${ABBR[sM]}–${ABBR[m]} ${y}`:`${ABBR[sM]} ${sY}–${ABBR[m]} ${y}`;
-  const pad=n=>String(n).padStart(2,"0");
-  return {
-    asOfLong:`${MON[m]} ${y}`,
-    curQuarter:`${y} Q${q}`,
-    nextQuarter:`${nqY} Q${nq}`,
-    complaintsWindow:win,
-    lastRefresh:`${y}-${pad(m+1)}-${pad(now.getDate())}`
-  };
-})();
+const CFG={asOfLong:"June 2026",curQuarter:"2026 Q2",nextQuarter:"2026 Q3",complaintsWindow:"Apr–Jun 2026",lastRefresh:"2026-06-21"};
 function fmtHuman(s){const m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];const p=String(s).split("-");return (+p[2])+" "+m[+p[1]-1]+" "+p[0];}
 // DAILY snapshots (modeled). The daily scheduled task appends one entry per run.
 let DAILY=[
- {d:"2026-05-23",c:2.18,s:{traffic:2.33,roads:2.6,flooding:1.57,waste:1.65,cost:1.66,security:2.03,healthcare:3.01,education:2.49,housing:2.78,markets:1.91,power:2.02,governance:2.13}},
- {d:"2026-05-24",c:2.17,s:{traffic:2.3,roads:2.6,flooding:1.55,waste:1.66,cost:1.65,security:2.02,healthcare:2.99,education:2.46,housing:2.78,markets:1.92,power:2.04,governance:2.13}},
- {d:"2026-05-25",c:2.18,s:{traffic:2.31,roads:2.56,flooding:1.55,waste:1.68,cost:1.67,security:2.04,healthcare:3.01,education:2.46,housing:2.79,markets:1.91,power:2.04,governance:2.14}},
- {d:"2026-05-26",c:2.17,s:{traffic:2.28,roads:2.56,flooding:1.56,waste:1.66,cost:1.63,security:2.03,healthcare:2.99,education:2.44,housing:2.78,markets:1.9,power:2.03,governance:2.15}},
- {d:"2026-05-27",c:2.16,s:{traffic:2.28,roads:2.57,flooding:1.57,waste:1.64,cost:1.65,security:2,healthcare:2.96,education:2.44,housing:2.76,markets:1.88,power:2,governance:2.12}},
- {d:"2026-05-28",c:2.15,s:{traffic:2.25,roads:2.57,flooding:1.58,waste:1.64,cost:1.66,security:2.01,healthcare:2.94,education:2.42,housing:2.74,markets:1.85,power:2.02,governance:2.08}},
- {d:"2026-05-29",c:2.15,s:{traffic:2.25,roads:2.54,flooding:1.6,waste:1.63,cost:1.67,security:2.03,healthcare:2.96,education:2.43,housing:2.73,markets:1.86,power:2.03,governance:2.05}},
- {d:"2026-05-30",c:2.15,s:{traffic:2.23,roads:2.54,flooding:1.59,waste:1.64,cost:1.68,security:2.03,healthcare:2.95,education:2.41,housing:2.73,markets:1.84,power:2.05,governance:2.05}},
- {d:"2026-05-31",c:2.14,s:{traffic:2.23,roads:2.5,flooding:1.61,waste:1.63,cost:1.68,security:2.03,healthcare:2.93,education:2.41,housing:2.72,markets:1.82,power:2.04,governance:2.06}},
- {d:"2026-06-01",c:2.12,s:{traffic:2.21,roads:2.49,flooding:1.61,waste:1.61,cost:1.66,security:2.05,healthcare:2.93,education:2.37,housing:2.7,markets:1.79,power:2.01,governance:2.03}},
- {d:"2026-06-02",c:2.11,s:{traffic:2.18,roads:2.49,flooding:1.62,waste:1.59,cost:1.64,security:2.05,healthcare:2.93,education:2.38,housing:2.68,markets:1.77,power:1.99,governance:2.04}},
- {d:"2026-06-03",c:2.11,s:{traffic:2.17,roads:2.5,flooding:1.61,waste:1.57,cost:1.65,security:2.07,healthcare:2.92,education:2.38,housing:2.67,markets:1.79,power:1.97,governance:2}},
- {d:"2026-06-04",c:2.09,s:{traffic:2.18,roads:2.49,flooding:1.62,waste:1.56,cost:1.64,security:2.05,healthcare:2.91,education:2.34,housing:2.65,markets:1.8,power:1.93,governance:1.97}},
- {d:"2026-06-05",c:2.08,s:{traffic:2.17,roads:2.47,flooding:1.64,waste:1.56,cost:1.61,security:2.05,healthcare:2.89,education:2.32,housing:2.62,markets:1.77,power:1.9,governance:1.97}},
- {d:"2026-06-06",c:2.08,s:{traffic:2.14,roads:2.46,flooding:1.61,waste:1.58,cost:1.62,security:2.06,healthcare:2.87,education:2.33,housing:2.6,markets:1.78,power:1.86,governance:1.99}},
- {d:"2026-06-07",c:2.07,s:{traffic:2.13,roads:2.44,flooding:1.63,waste:1.57,cost:1.6,security:2.07,healthcare:2.89,education:2.31,housing:2.58,markets:1.77,power:1.88,governance:1.98}},
- {d:"2026-06-08",c:2.06,s:{traffic:2.15,roads:2.42,flooding:1.62,waste:1.54,cost:1.61,security:2.03,healthcare:2.9,education:2.3,housing:2.59,markets:1.75,power:1.84,governance:1.99}},
- {d:"2026-06-09",c:2.05,s:{traffic:2.12,roads:2.44,flooding:1.61,waste:1.51,cost:1.59,security:2.03,healthcare:2.9,education:2.28,housing:2.57,markets:1.71,power:1.86,governance:1.96}},
  {d:"2026-06-10",c:2.04,s:{traffic:2.13,roads:2.41,flooding:1.57,waste:1.47,cost:1.61,security:2.04,healthcare:2.92,education:2.28,housing:2.56,markets:1.69,power:1.84,governance:1.95}},
  {d:"2026-06-11",c:2.04,s:{traffic:2.08,roads:2.44,flooding:1.66,waste:1.52,cost:1.56,security:1.95,healthcare:2.89,education:2.33,housing:2.64,markets:1.71,power:1.79,governance:1.88}},
  {d:"2026-06-12",c:2.03,s:{traffic:1.99,roads:2.43,flooding:1.73,waste:1.6,cost:1.57,security:1.88,healthcare:2.81,education:2.32,housing:2.71,markets:1.78,power:1.78,governance:1.81}},
@@ -476,7 +436,7 @@ const cls=d=>d>0.05?"up":(d<-0.05?"down":"flat");
 const LAST=NQ-1;
 let charts=[];
 function clearCharts(){charts.forEach(c=>{try{c.destroy();}catch(e){}});charts=[];}
-function spark(cv,labels,data,color,ymin,ymax){const c=new Chart(cv,{type:'line',data:{labels,datasets:[{data,borderColor:color,backgroundColor:color,tension:.3,borderWidth:2.4,pointRadius:0,pointHoverRadius:4,pointHitRadius:14,pointHoverBackgroundColor:color,pointHoverBorderColor:'#fff',pointHoverBorderWidth:1.5,fill:false}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{displayColors:false,callbacks:{title:c=>labels[c[0].dataIndex],label:c=>'Mood '+(+c.parsed.y).toFixed(2)+' / 5'}}},scales:{y:{min:ymin==null?1:ymin,max:ymax==null?5:ymax,display:false},x:{display:false}}}});charts.push(c);return c;}
+function spark(cv,labels,data,color,ymin,ymax){const c=new Chart(cv,{type:'line',data:{labels,datasets:[{data,borderColor:color,backgroundColor:color,tension:.3,borderWidth:2.4,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>labels[c[0].dataIndex],label:c=>(+c.parsed.y).toFixed(1)}}},scales:{y:{min:ymin==null?1:ymin,max:ymax==null?5:ymax,display:false},x:{display:false}}}});charts.push(c);return c;}
 
 /* ============ NAV ============ */
 const SW='fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
@@ -502,6 +462,7 @@ const NAVGROUPS=[
  ["Tools & reference",[["10","Risk & Action","shield"],["11","Your Strategist","spark"],["13","Methodology","info"]]]
 ];
 const ID2ICON={};NAVGROUPS.forEach(g=>g[1].forEach(m=>ID2ICON[m[0]]=m[2]));
+const ID2NAME={};NAVGROUPS.forEach(g=>g[1].forEach(m=>ID2NAME[m[0]]=m[1]));
 const navEl=document.getElementById('nav');
 NAVGROUPS.forEach(g=>{const s=document.createElement('div');s.className='navsec';s.textContent=g[0];navEl.appendChild(s);
  g[1].forEach(m=>{const b=document.createElement('button');b.dataset.m=m[0];b.innerHTML=`<span class="ic">${ICONS[m[2]]}</span><span class="lbl">${m[1]}</span>`;b.onclick=()=>show(m[0]);navEl.appendChild(b);});});
@@ -514,6 +475,8 @@ function show(id){
  RENDER[id]();
  const _h=document.getElementById('mod'+id).querySelector('.mhead');
  if(_h&&_h.insertAdjacentHTML&&typeof ID2ICON!=='undefined'&&ID2ICON[id])_h.insertAdjacentHTML('afterbegin',`<span class="mh-ic">${ICONS[ID2ICON[id]]}</span>`);
+ const _t=document.getElementById('tbTitle');if(_t&&typeof ID2NAME!=='undefined')_t.textContent=ID2NAME[id]||'';
+ document.body.classList.remove('navopen');
  window.scrollTo(0,0);
 }
 function H(title,sub){return `<h2 class="mhead">${title}</h2><p class="msub">${sub}</p>`;}
@@ -545,7 +508,7 @@ function m1(){
     <div class="stat"><div class="lab">Biggest mover today</div><div class="big" style="font-size:22px">${mover?`${mover.i.name} <span style="font-size:15px" class="${cls(mover.d)}">${arrow(mover.d)} ${sgn(mover.d)}</span>`:"—"}</div><div class="sub">day-over-day change</div></div>
   </div>
   <div class="grid g2">
-    <div class="panel"><h3>City-wide mood — daily</h3><p class="ph">Last ${Math.min(30,dN)} days · updates each midnight refresh.</p><div class="m1spark"><canvas id="m1daily"></canvas></div></div>
+    <div class="panel"><h3>City-wide mood — daily</h3><p class="ph">Last ${dN} days · updates each midnight refresh.</p><div class="m1spark"><canvas id="m1daily"></canvas></div></div>
     <div class="panel"><h3>Quarterly movers</h3>
       <div class="moverline"><span class="up">▲ Most improved</span> &nbsp; <b>${up.name}</b> <span class="up">${sgn(cur(up)-prev(up))}</span> &nbsp;<span class="o">now ${cur(up).toFixed(1)} (was ${prev(up).toFixed(1)})</span></div>
       <div class="moverline"><span class="down">▼ Biggest decline</span> &nbsp; <b>${down.name}</b> <span class="down">${sgn(cur(down)-prev(down))}</span> &nbsp;<span class="o">now ${cur(down).toFixed(1)} (was ${prev(down).toFixed(1)})</span></div>
@@ -553,7 +516,7 @@ function m1(){
     </div>
   </div>
   <div class="panel"><h3>All 12 issues, current standing</h3>
-   <table class="tb m1tbl"><thead><tr>
+   <table class="tb"><thead><tr>
      <th class="sortable" data-k="name">Issue<span class="sarr"></span></th>
      <th class="sortable r" data-k="now">Now<span class="sarr"></span></th>
      <th class="sortable" data-k="mood">Mood<span class="sarr"></span></th>
@@ -572,13 +535,13 @@ function m1(){
    return a;}
  function m1fill(){
    document.getElementById('m1tb').innerHTML=m1rows().map(i=>{const dd=cur(i)-prev(i);const dy=dIssue(i.key);
-     return `<tr><td><b class="idef" data-def="${ISSUE_DEFS[i.key]||''}">${i.name}</b></td><td class="r"><span class="badge" style="background:${moodColor(cur(i))}">${cur(i).toFixed(1)}</span></td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
+     return `<tr><td><b>${i.name}</b></td><td class="r"><span class="badge" style="background:${moodColor(cur(i))}">${cur(i).toFixed(1)}</span></td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
    el.querySelectorAll('th[data-k]').forEach(th=>{th.querySelector('.sarr').textContent=th.dataset.k===m1sort.key?(m1sort.dir>0?' ▲':' ▼'):'';});
  }
  el.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(m1sort.key===k)m1sort.dir*=-1;else{m1sort.key=k;m1sort.dir=1;}m1fill();}));
  m1fill();
- const recent=DAILY.slice(-30);const ser=recent.map(x=>x.c);let mn=Math.min(...ser),mx=Math.max(...ser);const pad=Math.max(0.02,(mx-mn)*0.12);mn=Math.max(1,mn-pad);mx=Math.min(5,mx+pad);
- spark(document.getElementById('m1daily'),recent.map(x=>fmtHuman(x.d)),ser,gc('--accent'),mn,mx);
+ const ser=DAILY.map(x=>x.c);let mn=Math.min(...ser),mx=Math.max(...ser);const pad=Math.max(0.05,(mx-mn)*0.35);mn=Math.max(1,mn-pad);mx=Math.min(5,mx+pad);
+ spark(document.getElementById('m1daily'),DAILY.map(x=>fmtHuman(x.d)),ser,gc('--accent'),mn,mx);
 }
 
 /* ============ MODULE 2 — MOOD TRAJECTORY (date range) ============ */
@@ -1025,19 +988,10 @@ function m13(){
    <footer><b>In short.</b> GovernIQ turns public discussion into a consistent, trackable read of citizen mood. It is strongest as an early-warning and prioritisation tool; for high-stakes decisions, pair it with official data and on-the-ground verification.</footer>`;
 }
 
-/* instant hover tooltip for issue definitions (event-delegated, survives re-renders) */
-(function(){
- const tip=document.createElement('div');tip.id='idef-tip';document.body.appendChild(tip);
- let cur=null;
- const place=(e)=>{const pad=14;let x=e.clientX+pad,y=e.clientY+pad;const r=tip.getBoundingClientRect();
-   if(x+r.width>innerWidth-8)x=e.clientX-r.width-pad;if(y+r.height>innerHeight-8)y=e.clientY-r.height-pad;
-   tip.style.left=x+'px';tip.style.top=y+'px';};
- document.addEventListener('mouseover',(e)=>{const t=e.target.closest('.idef');if(!t||!t.dataset.def)return;cur=t;tip.textContent=t.dataset.def;tip.classList.add('show');place(e);});
- document.addEventListener('mousemove',(e)=>{if(cur)place(e);});
- document.addEventListener('mouseout',(e)=>{if(cur&&!e.relatedTarget?.closest?.('.idef')){cur=null;tip.classList.remove('show');}});
-})();
 /* boot */
 const _bs=document.getElementById('brandsub');if(_bs)_bs.textContent="Lagos Citizen Mood · "+CFG.asOfLong;
+const _hb=document.getElementById('hambBtn');if(_hb)_hb.addEventListener('click',()=>document.body.classList.toggle('navopen'));
+const _sc=document.getElementById('navscrim');if(_sc)_sc.addEventListener('click',()=>document.body.classList.remove('navopen'));
 show('1');
 </script>
 </body>
