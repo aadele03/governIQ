@@ -278,6 +278,7 @@ footer b{color:#4a4943;}
     <section class="mod" id="mod11"></section>
     <section class="mod" id="mod12"></section>
     <section class="mod" id="mod13"></section>
+  <section class="mod" id="mod14"></section>
   </main>
   <div class="navscrim" id="navscrim"></div>
 </div>
@@ -443,20 +444,42 @@ const ICONS={
  shield:`<svg viewBox="0 0 24 24" ${SW}><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>`,
  spark:`<svg viewBox="0 0 24 24" ${SW}><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>`,
  building:`<svg viewBox="0 0 24 24" ${SW}><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h2M8 11h2M8 15h2M14 7h2M14 11h2M14 15h2"/></svg>`,
- info:`<svg viewBox="0 0 24 24" ${SW}><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`
+ info:`<svg viewBox="0 0 24 24" ${SW}><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`,
+ list:`<svg viewBox="0 0 24 24" ${SW}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`
 };
 const NAVGROUPS=[
  ["Overview",[["1","Dashboard","dashboard"],["12","Executive Brief","brief"]]],
  ["Trends",[["2","Mood Trajectory","line"],["3","Heatmap","grid"],["4","Issue Trajectories","trend"]]],
  ["Citizen voice",[["5","Top Complaints","alert"],["6","Praised Actions","check"],["9","Anger Spikes","bolt"],["8","Project Trust","building"],["7","LGA Mood","pin"]]],
- ["Tools & reference",[["10","Risk & Action","shield"],["11","Your Strategist","spark"],["13","Methodology","info"]]]
+ ["Tools & reference",[["10","Risk & Action","shield"],["11","Your Strategist","spark"],["13","Methodology","info"],["14","Available Modules","list"]]]
 ];
 const ID2ICON={};NAVGROUPS.forEach(g=>g[1].forEach(m=>ID2ICON[m[0]]=m[2]));
 const ID2NAME={};NAVGROUPS.forEach(g=>g[1].forEach(m=>ID2NAME[m[0]]=m[1]));
 const navEl=document.getElementById('nav');
 NAVGROUPS.forEach(g=>{const s=document.createElement('div');s.className='navsec';s.textContent=g[0];navEl.appendChild(s);
  g[1].forEach(m=>{const b=document.createElement('button');b.dataset.m=m[0];b.innerHTML=`<span class="ic">${ICONS[m[2]]}</span><span class="lbl">${m[1]}</span>`;b.onclick=()=>show(m[0]);navEl.appendChild(b);});});
-const RENDER={1:m1,2:m2,3:m3,4:m4,5:m5,6:m6,7:m7,8:m8,9:m9,10:m10,11:m11,12:m12,13:m13};
+function m14(){
+ const el=document.getElementById('mod14');
+ const DESC={
+  '1':'The selected state’s mood at a glance — the overall index plus every issue’s current score and how far it moved since last quarter.',
+  '12':'A shareable, plain-language summary of the mood story: the headline index, the biggest wins and pressures, and what to watch next.',
+  '2':'Line chart of mood by issue between any two quarters, so you can see how each concern rose or fell over your chosen range.',
+  '3':'Colour grid of all 12 issues over time, with a net-change column that makes it easy to spot what cooled or heated up.',
+  '4':'Each issue’s path over the past two years, plotted side by side for quick trend comparison.',
+  '5':'The loudest grievances of the past three months, ranked by an intensity index, each with a one-line summary and a source link.',
+  '6':'Government initiatives citizens welcomed — the positives that lifted mood, balancing the complaints view.',
+  '9':'A monthly 0–100 anger index drawn from X/Twitter, Facebook and Nairaland, with the events behind the biggest spikes.',
+  '8':'A 1–5 read of how much citizens trust major public projects and institutions right now.',
+  '7':'Mood broken down by local government area, showing which parts of the state feel best and worst.',
+  '10':'Current severity and the next-quarter forecast turned into prioritised risks and suggested responses.',
+  '11':'An interactive advisor that answers questions and suggests strategy based on the underlying data.',
+  '13':'Where the data comes from, how the 1–5 mood index is built, and which figures are sourced versus modelled.',
+  '14':'This page — a quick guide to every module and how the dashboard is organised.'
+ };
+ el.innerHTML=H('Available Modules','A quick guide to everything in GovernIQ. The sidebar groups modules into the sections below — here is what each one does.')+
+  NAVGROUPS.map(g=>`<div class="panel"><h3>${g[0]}</h3>${g[1].map(m=>`<div class="rank"><div class="no">${m[0]}</div><div class="body"><div class="t">${m[1]}</div><div class="m">${DESC[m[0]]||''}</div></div></div>`).join('')}</div>`).join('');
+}
+const RENDER={1:m1,2:m2,3:m3,4:m4,5:m5,6:m6,7:m7,8:m8,9:m9,10:m10,11:m11,12:m12,13:m13,14:m14};
 function show(id){
  CURRENT=id;
  clearCharts();
