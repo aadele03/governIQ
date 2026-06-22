@@ -31,7 +31,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Sans Pro
 .nav button.active .num{background:rgba(255,255,255,.25);color:#fff;}
 .statesel{width:100%;margin:12px 0 2px;padding:9px 10px;border-radius:9px;border:1px solid #34322e;background:#232220;color:#FAF9F5;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
 .main{flex:1;min-width:0;padding:26px 28px 60px;}
-.mhead{margin:0 0 2px;font-size:22px;letter-spacing:-.3px;color:#D97757;}
+.mhead{margin:0 0 2px;font-size:22px;letter-spacing:-.3px;color:#141413;}
 .msub{color:var(--muted);font-size:13px;margin:0 0 18px;}
 section.mod{display:none;}
 section.mod.active{display:block;}
@@ -176,6 +176,9 @@ footer{background:transparent;border:0;border-top:1px solid var(--line);border-r
 .tb th.r,.tb td.r{text-align:right;}
 .mh-ic{display:inline-flex;width:22px;height:22px;vertical-align:-4px;margin-right:8px;color:var(--accent);}
 .mh-ic svg{width:22px;height:22px;}
+.dotnum{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);}
+.ddot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 9px;}
+.chip-bad{display:inline-block;background:var(--r);color:#fff;font-weight:700;border-radius:20px;padding:2px 9px;font-size:12px;}
 @media(max-width:780px){.navsec{flex-basis:100%;}}
 .lead-para{font-size:15.5px;line-height:1.65;color:#2b2a27;margin:0;}
 .lead-para b{color:#141413;}
@@ -422,6 +425,7 @@ function moodLabel(s){if(s<2.0)return"Distressed";if(s<2.5)return"Frustrated";if
 const sgn=x=>(x>0?"+":"")+x.toFixed(1);
 function evIdx(q){var m=/(\d{4})\s*Q([1-4])/.exec(q);if(m)return (+m[1]-2020)*4+(+m[2]-1);var ys=(""+q).match(/\d{4}/g);if(ys){var y=+ys[ys.length-1];return (y-2020)*4+2;}return 99;}
 const arrow=d=>d>0.05?"▲":(d<-0.05?"▼":"▬");
+function moodChip(v){return '<span class="dotnum"><i class="ddot" style="background:'+moodColor(v)+'"></i>'+v.toFixed(1)+'</span>';}
 const cls=d=>d>0.05?"up":(d<-0.05?"down":"flat");
 const LAST=NQ-1;
 let charts=[];
@@ -526,7 +530,7 @@ function m1(){
    return a;}
  function m1fill(){
    document.getElementById('m1tb').innerHTML=m1rows().map(i=>{const dd=cur(i)-prev(i);const dy=dIssue(i.key);
-     return `<tr><td><b>${i.name}</b></td><td class="r"><span class="badge" style="background:${moodColor(cur(i))}">${cur(i).toFixed(1)}</span></td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
+     return `<tr><td><b>${i.name}</b></td><td class="r">${moodChip(cur(i))}</td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
    el.querySelectorAll('th[data-k]').forEach(th=>{th.querySelector('.sarr').textContent=th.dataset.k===m1sort.key?(m1sort.dir>0?' ▲':' ▼'):'';});
  }
  el.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(m1sort.key===k)m1sort.dir*=-1;else{m1sort.key=k;m1sort.dir=1;}m1fill();}));
@@ -562,8 +566,8 @@ function best3(){return [...ISSUES].sort((a,b)=>b.scores[LAST]-a.scores[LAST]).s
 function drawM2(){
  clearCharts();
  const lo=m2state.from,hi=m2state.to;const labels=Q_LABELS.slice(lo,hi+1);
- const ds=ISSUES.map(i=>({label:i.name,data:i.scores.slice(lo,hi+1),borderColor:i.color,backgroundColor:i.color,tension:.3,borderWidth:2.2,pointRadius:labels.length>16?0:3,hidden:!m2state.focus(i)}));
- const c=new Chart(document.getElementById('m2chart'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:11},padding:9}},tooltip:{callbacks:{label:x=>x.dataset.label+": "+x.parsed.y.toFixed(1)+" ("+moodLabel(x.parsed.y)+")"}}},scales:{y:{min:1,max:5,ticks:{stepSize:1},grid:{color:'#E8E6DC'},title:{display:true,text:'Mood (1–5)',color:'#B0AEA5',font:{size:11}}},x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:14}}}}});
+ const ds=ISSUES.map(i=>({label:i.name,data:i.scores.slice(lo,hi+1),borderColor:i.color+"CC",backgroundColor:i.color,tension:.35,borderWidth:1.6,pointRadius:labels.length>16?0:2.5,hidden:!m2state.focus(i)}));
+ const c=new Chart(document.getElementById('m2chart'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:11},padding:9}},tooltip:{callbacks:{label:x=>x.dataset.label+": "+x.parsed.y.toFixed(1)+" ("+moodLabel(x.parsed.y)+")"}}},scales:{y:{min:1,max:5,ticks:{stepSize:1},grid:{color:'#EFEDE6'},title:{display:true,text:'Mood (1–5)',color:'#B0AEA5',font:{size:11}}},x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:14}}}}});
  charts.push(c);
 }
 
@@ -695,7 +699,7 @@ function m7(){
    </div>
    <div class="panel"><h3>All ${LGAS.length} LGAs — best to worst</h3><p class="ph">Hover a row for the leading issue and its current score &amp; trend.</p>
      <div class="listwrap">
-       <div class="lgalist" id="lgalist">${all.map((l,idx)=>{const m=lm(l.n);return `<div class="lgarow" data-n="${l.n}" data-m="${m.toFixed(1)}" data-t="${l.t}"><div class="rk">${idx+1}</div><div class="nm">${l.n}</div><div class="bar"><i style="width:${(m/5*100).toFixed(0)}%;background:${moodColor(m)}"></i></div><div class="sc" style="color:${moodColor(m)}">${m.toFixed(1)}</div><div class="iss">${l.t}</div></div>`;}).join("")}</div>
+       <div class="lgalist" id="lgalist">${all.map((l,idx)=>{const m=lm(l.n);return `<div class="lgarow" data-n="${l.n}" data-m="${m.toFixed(1)}" data-t="${l.t}"><div class="rk">${idx+1}</div><div class="nm">${l.n}</div><div class="bar"><i style="width:${(m/5*100).toFixed(0)}%;background:${moodColor(m)};opacity:.9"></i></div><div class="sc">${m.toFixed(1)}</div><div class="iss">${l.t}</div></div>`;}).join("")}</div>
        <div id="lgatip" class="maptip"></div>
      </div>
      <div class="scalekey">
@@ -729,9 +733,9 @@ function m8(){
    </div>
    <div class="panel"><div class="chartbox sm"><canvas id="m8chart"></canvas></div></div>
    <div class="panel"><table class="tb"><thead><tr><th>Project</th><th class="r">Trust</th><th>Status</th><th>Citizen sentiment</th><th>Source</th></tr></thead><tbody>
-   ${PROJECTS.map(p=>`<tr><td><b>${p.name}</b></td><td class="r"><span class="badge" style="background:${moodColor(p.trust)}">${p.trust.toFixed(1)}</span></td><td><span class="pill">${p.status}</span></td><td style="font-size:12.5px">${p.note}</td><td class="src"><a href="${p.src.u}" target="_blank" rel="noopener">${p.src.t} ↗</a></td></tr>`).join("")}
+   ${PROJECTS.map(p=>`<tr><td><b>${p.name}</b></td><td class="r">${moodChip(p.trust)}</td><td><span class="pill">${p.status}</span></td><td style="font-size:12.5px">${p.note}</td><td class="src"><a href="${p.src.u}" target="_blank" rel="noopener">${p.src.t} ↗</a></td></tr>`).join("")}
    </tbody></table></div>`;
- const c=new Chart(document.getElementById('m8chart'),{type:'bar',data:{labels:PROJECTS.map(p=>p.name),datasets:[{data:PROJECTS.map(p=>p.trust),backgroundColor:PROJECTS.map(p=>moodColor(p.trust)),borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.x.toFixed(1)+" / 5"}}},scales:{x:{min:0,max:5,grid:{color:'#E8E6DC'}},y:{grid:{display:false}}}}});
+ const c=new Chart(document.getElementById('m8chart'),{type:'bar',data:{labels:PROJECTS.map(p=>p.name),datasets:[{data:PROJECTS.map(p=>p.trust),backgroundColor:PROJECTS.map(p=>moodColor(p.trust)),borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.x.toFixed(1)+" / 5"}}},scales:{x:{min:0,max:5,grid:{color:'#EFEDE6'}},y:{grid:{display:false}}}}});
  charts.push(c);
 }
 
@@ -745,7 +749,7 @@ function m9(){
      <div class="body"><div class="t">${s.m} — ${s.issue}</div><div class="m">${s.trig} &nbsp;·&nbsp; <span class="src"><a href="${s.src.u}" target="_blank" rel="noopener">${s.src.t} ↗</a></span></div></div>
    </div>`).join("")}</div>
    <footer><b>Note.</b> The anger index is a <b>modeled signal</b> built from the relative intensity of reported public reaction, not a calibrated count of posts. Use it to spot timing and triggers of outrage.</footer>`;
- const c=new Chart(document.getElementById('m9chart'),{type:'bar',data:{labels:ANGER_LABELS,datasets:[{data:ANGER,backgroundColor:ANGER.map(v=>v>=78?gc('--r'):v>=62?gc('--o'):gc('--y')),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>"Anger "+x.parsed.y+"/100"}}},scales:{y:{min:0,max:100,grid:{color:'#E8E6DC'},title:{display:true,text:'Anger index',color:'#B0AEA5',font:{size:11}}},x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12}}}}});
+ const c=new Chart(document.getElementById('m9chart'),{type:'bar',data:{labels:ANGER_LABELS,datasets:[{data:ANGER,backgroundColor:ANGER.map(v=>v>=78?gc('--r'):v>=62?gc('--o'):gc('--y')),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>"Anger "+x.parsed.y+"/100"}}},scales:{y:{min:0,max:100,grid:{color:'#EFEDE6'},title:{display:true,text:'Anger index',color:'#B0AEA5',font:{size:11}}},x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12}}}}});
  charts.push(c);
 }
 
@@ -776,8 +780,8 @@ function m10(){
     <table class="tb"><thead><tr><th>Issue</th><th class="r">Now</th><th class="r">Forecast</th><th>Risk</th><th>Priority</th><th>Recommended action</th></tr></thead><tbody>
     ${rows.map(r=>{const rk=riskOf(r.fc);return `<tr>
       <td><b>${r.i.name}</b></td>
-      <td class="r"><span class="badge" style="background:${moodColor(r.cur)}">${r.cur.toFixed(1)}</span></td>
-      <td class="r"><span class="badge" style="background:${moodColor(r.fc)}">${r.fc.toFixed(1)}</span></td>
+      <td class="r">${moodChip(r.cur)}</td>
+      <td class="r">${moodChip(r.fc)}</td>
       <td><span class="prio" style="background:${rk[1]}">${rk[0]}</span></td>
       <td><span class="prio" style="background:${pc[r.a.prio]}">${r.a.prio}</span></td>
       <td style="font-size:12.5px">${r.a.rec}</td></tr>`;}).join("")}
