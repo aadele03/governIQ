@@ -484,6 +484,7 @@ function H(title,sub){return `<h2 class="mhead">${title}</h2><p class="msub">${s
 let m1sort={key:'now',dir:1};
 
 /* ============ MODULE 1 — DASHBOARD ============ */
+const ISSUE_DEFS={traffic:"Everyday road congestion, commute times, and the reliability of public transport (BRT, danfo) and ride-hailing.",roads:"The physical state of roads and bridges — potholes, failed surfaces, repairs and construction quality.",flooding:"Seasonal and flash flooding, drainage and canal upkeep, and the damage heavy rains do to homes and movement.",waste:"Refuse collection and disposal, street cleanliness, illegal dumping, and sanitation enforcement.",cost:"Cost of living — prices of food, fuel, transport and daily essentials relative to people's incomes.",security:"Personal safety from crime, kidnapping, cultism and violence, and confidence in policing.",healthcare:"Access to and quality of clinics and hospitals, drug availability, costs, and public-health risks like outbreaks.",education:"Access to and quality of schooling — fees, teachers, strikes, and safety in and around schools.",housing:"Affordability and availability of housing, rent levels, tenancy practices, and building safety.",markets:"Conditions for traders and small businesses — market access, levies and agbero charges, and demolitions.",power:"Electricity reliability — supply hours, DisCo tariffs (Band A to E), estimated billing and blackouts.",governance:"Trust in government — service delivery, transparency, taxes and levies, and responsiveness to citizens."};
 function m1(){
  const cur=i=>i.scores[LAST], prev=i=>i.scores[LAST-1];
  const city=ISSUES.reduce((a,b)=>a+cur(b),0)/ISSUES.length;
@@ -516,7 +517,7 @@ function m1(){
       <div class="scalestrip"><span class="lab">Mood scale</span><span><i class="dot" style="background:var(--r)"></i>1.0–3.9</span><span><i class="dot" style="background:var(--o)"></i>4.0–4.9</span><span><i class="dot" style="background:var(--y)"></i>5.0–6.9</span><span><i class="dot" style="background:var(--g2)"></i>7.0–8.9</span><span><i class="dot" style="background:var(--g1)"></i>9.0–10.0</span></div>
     </div>
   </div>
-  <div class="panel"><h3>All 12 issues, current standing</h3>
+  <div class="panel" style="position:relative"><h3>All 12 issues, current standing</h3><div id="m1tip" class="maptip"></div>
    <table class="tb"><thead><tr>
      <th class="sortable" data-k="name">Issue<span class="sarr"></span></th>
      <th class="sortable r" data-k="now">Now<span class="sarr"></span></th>
@@ -524,7 +525,7 @@ function m1(){
      <th class="sortable r" data-k="yday">vs yday<span class="sarr"></span></th>
      <th class="sortable r" data-k="mo3">vs 3 mo<span class="sarr"></span></th>
    </tr></thead><tbody id="m1tb"></tbody></table>
-   <p class="ph" style="margin-top:8px">Click a column heading to sort (click again to reverse).</p>
+   <p class="ph" style="margin-top:8px">Click a column heading to sort (click again to reverse). Hover an issue name to see its definition.</p>
   </div>`;
  function m1rows(){const a=[...ISSUES],k=m1sort.key,d=m1sort.dir;
    a.sort((x,y)=>{if(k==='name')return d*x.name.localeCompare(y.name);
@@ -536,8 +537,9 @@ function m1(){
    return a;}
  function m1fill(){
    document.getElementById('m1tb').innerHTML=m1rows().map(i=>{const dd=cur(i)-prev(i);const dy=dIssue(i.key);
-     return `<tr><td><b>${i.name}</b></td><td class="r">${moodChip(cur(i))}</td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
+     return `<tr><td><b class="idef" data-k="${i.key}" style="border-bottom:1px dotted #B0AEA5;cursor:default">${i.name}</b></td><td class="r">${moodChip(cur(i))}</td><td>${moodLabel(cur(i))}</td><td class="r ${dy!=null?cls(dy):'flat'}">${dy!=null?arrow(dy)+' '+sgn(dy):'—'}</td><td class="r ${cls(dd)}">${arrow(dd)} ${sgn(dd)}</td></tr>`;}).join("");
    el.querySelectorAll('th[data-k]').forEach(th=>{th.querySelector('.sarr').textContent=th.dataset.k===m1sort.key?(m1sort.dir>0?' ▲':' ▼'):'';});
+    const _tip=document.getElementById('m1tip');el.querySelectorAll('.idef').forEach(node=>{node.addEventListener('mousemove',e=>{const r=_tip.parentElement.getBoundingClientRect();_tip.textContent=ISSUE_DEFS[node.dataset.k]||'';_tip.style.display='block';let x=e.clientX-r.left+14,y=e.clientY-r.top+14;if(x>r.width-250)x=r.width-260;if(x<6)x=6;_tip.style.left=x+'px';_tip.style.top=y+'px';});node.addEventListener('mouseleave',()=>{_tip.style.display='none';});});
  }
  el.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(m1sort.key===k)m1sort.dir*=-1;else{m1sort.key=k;m1sort.dir=1;}m1fill();}));
  m1fill();
