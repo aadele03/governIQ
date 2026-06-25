@@ -629,7 +629,7 @@ function m4(){
   const q=c-prv(i),n=c-fst(i);
   return `<div class="card" style="border-left-color:${col}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><h4>${i.name}</h4><span class="badge" style="background:${col}">${moodLabel(c)}</span></div>
-    <div class="scorerow"><span class="v" style="color:${col}">${c.toFixed(1)}</span><span class="o">/ 5 · ${Q_LABELS[LAST]}</span><span class="chg ${cls(q)}">${arrow(q)} ${sgn(q)} vs prev</span><span class="chg ${cls(n)}">${arrow(n)} ${sgn(n)} since ${Q_LABELS[start]}</span></div>
+    <div class="scorerow"><span class="v" style="color:${col}">${c.toFixed(1)}</span><span class="o">/ 10 · ${Q_LABELS[LAST]}</span><span class="chg ${cls(q)}">${arrow(q)} ${sgn(q)} vs prev</span><span class="chg ${cls(n)}">${arrow(n)} ${sgn(n)} since ${Q_LABELS[start]}</span></div>
     <div class="spark"><canvas id="m4-${i.key}"></canvas></div>
     <p style="font-size:13px;margin:8px 0 8px;color:#2b2a27">${mt.story}</p>
     <ul class="events">${(mt.events.filter(function(e){return evIdx(e.q)>=start;}).length?mt.events.filter(function(e){return evIdx(e.q)>=start;}):mt.events.slice(-2)).map(e=>`<li><b>${e.q}:</b> ${e.t}</li>`).join("")}</ul>
