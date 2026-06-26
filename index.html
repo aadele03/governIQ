@@ -259,7 +259,7 @@ footer b{color:#4a4943;}
    EXECUTIVE REDESIGN LAYER  (overrides earlier rules; appended last)
    Refined GovernIQ — warm accent + calm slate, government-grade
    ================================================================== */
-html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 body{background:var(--bg);color:var(--ink);font-size:14px;letter-spacing:-.05px;}
 
 /* ---- layout & rhythm ---- */
@@ -1188,6 +1188,7 @@ const BASIS=[
  {e:"Praised actions (Mod 6)",b:"Specific government actions reported in the news",t:"Sourced"},
  {e:"Project trust (Mod 8)",b:"Sentiment read of coverage on each project",t:"Modeled"},
  {e:"Anger spikes index (Mod 9)",b:"Relative intensity of negative reaction over time",t:"Modeled"},
+ {e:"YouTube comment signal",b:"Aggregated sentiment of public YouTube comments on Nigerian news/gov videos, classified by issue (LLM) and blended into daily mood",t:"Modeled"},
  {e:"Next-quarter forecast (Mod 10)",b:"Each issue’s avg historical Q2→Q3 change applied to its current score",t:"Statistical"},
  {e:"Your Strategist (Mod 11)",b:"Assistant reasoning live over this dataset",t:"Generated"},
  {e:"Executive Brief (Mod 12)",b:"Auto-summary computed from the data",t:"Derived"}
@@ -1203,7 +1204,7 @@ function m13(){
     <div class="stat"><div class="lab">Refresh</div><div class="big">Daily</div><div class="sub">current snapshot · history quarterly</div></div>
    </div>
    <div class="panel"><h3>Where the data comes from</h3>
-     <p class="lead-para">Mood is read from public discussion across three channel types: <b>Nairaland</b> (Nigeria’s largest forum), <b>Nigerian daily news</b> (Punch, Guardian, Vanguard, Premium Times, BusinessDay, Nairametrics, FIJ, TheCable, Blueprint, Daily Post and others), and <b>public reaction on X/Twitter and Facebook</b> where reporting captured it. For each state we also draw on its local outlets — Ibadan, Abeokuta, Port Harcourt, Kano and Abuja press — alongside the national dailies.</p>
+     <p class="lead-para">Mood is read from public discussion across four channel types: <b>Nairaland</b> (Nigeria’s largest forum), <b>Nigerian daily news</b> (Punch, Guardian, Vanguard, Premium Times, BusinessDay, Nairametrics, FIJ, TheCable, Blueprint, Daily Post and others), and <b>public reaction on X/Twitter and Facebook</b> where reporting captured it, plus <b>public YouTube comments</b> on Nigerian news and government videos, classified by issue and aggregated to the issue level (no per-channel scoring; raw comments are not retained). For each state we also draw on its local outlets — Ibadan, Abeokuta, Port Harcourt, Kano and Abuja press — alongside the national dailies.</p>
      <ul class="exlist" style="margin-top:10px">
        <li><b>Skew:</b> online voices lean younger, urban, male and more vocal, so the picture tilts toward grievances. Treat it as directional sentiment, <b>not a representative survey</b>.</li>
      </ul>
