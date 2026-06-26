@@ -230,6 +230,9 @@ footer{background:transparent;border:0;border-top:1px solid var(--line);border-r
  .panel{padding:14px;}
  .refbar{font-size:12.5px;padding:10px 12px;}
  .askrow{flex-direction:column;align-items:stretch;} .askrow button{padding:10px;}
+ /* mobile: let the dashboard 12-issue table fit the screen instead of forcing 540px, which overflowed and shrank the whole module */
+ table.tb,.tb{min-width:0;}
+ table.tb th,table.tb td{padding:7px 6px;word-break:break-word;}
 }
 @media(max-width:380px){
  .g3,.g4{grid-template-columns:1fr;}
