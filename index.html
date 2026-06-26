@@ -233,6 +233,17 @@ footer{background:transparent;border:0;border-top:1px solid var(--line);border-r
  /* mobile: let the dashboard 12-issue table fit the screen instead of forcing 540px, which overflowed and shrank the whole module */
  table.tb,.tb{min-width:0;}
  table.tb th,table.tb td{padding:7px 6px;word-break:break-word;}
+ /* wide multi-column tables: stack into labeled cards instead of crushing columns */
+ table.tbw{min-width:0;font-size:13px;}
+ table.tbw thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+ table.tbw,table.tbw tbody,table.tbw tr,table.tbw td{display:block;width:auto;}
+ table.tbw tr{border:1px solid var(--line);border-radius:12px;padding:6px 15px 8px;margin-bottom:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+ table.tbw td{border:none;border-top:1px solid var(--line);padding:9px 0;text-align:left !important;word-break:normal;overflow-wrap:anywhere;}
+ table.tbw td:first-child{border-top:none;}
+ table.tbw td::before{content:attr(data-label);display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px;}
+ table.tbw td:first-child{font-size:15px;padding-top:4px;}
+ table.tbw td:first-child::before{color:var(--accent);}
+ table.tbw td .src a,table.tbw td.src a,table.tbw td.src{white-space:normal;word-break:break-word;display:inline;}
 }
 @media(max-width:380px){
  .g3,.g4{grid-template-columns:1fr;}
@@ -957,8 +968,8 @@ function m8(){
      <div class="stat"><div class="lab">Least trusted</div><div class="big nm" style="color:${moodColor(PROJECTS[PROJECTS.length-1].trust)}">${PROJECTS[PROJECTS.length-1].name}</div><div class="sub">${PROJECTS[PROJECTS.length-1].trust.toFixed(1)} / 10</div></div>
    </div>
    <div class="panel"><div class="chartbox sm"><canvas id="m8chart"></canvas></div></div>
-   <div class="panel"><table class="tb"><thead><tr><th>Project</th><th class="r">Trust</th><th>Status</th><th>Citizen sentiment</th><th>Source</th></tr></thead><tbody>
-   ${PROJECTS.map(p=>`<tr><td><b>${p.name}</b></td><td class="r">${moodChip(p.trust)}</td><td><span class="pill">${p.status}</span></td><td style="font-size:12.5px">${p.note}</td><td class="src"><a href="${p.src.u}" target="_blank" rel="noopener">${p.src.t} ↗</a></td></tr>`).join("")}
+   <div class="panel"><table class="tb tbw"><thead><tr><th>Project</th><th class="r">Trust</th><th>Status</th><th>Citizen sentiment</th><th>Source</th></tr></thead><tbody>
+   ${PROJECTS.map(p=>`<tr><td data-label="Project"><b>${p.name}</b></td><td class="r" data-label="Trust">${moodChip(p.trust)}</td><td data-label="Status"><span class="pill">${p.status}</span></td><td style="font-size:12.5px" data-label="Citizen sentiment">${p.note}</td><td class="src" data-label="Source"><a href="${p.src.u}" target="_blank" rel="noopener">${p.src.t} ↗</a></td></tr>`).join("")}
    </tbody></table></div><div class="panel"><h3>Projects needing a trust response</h3><p class="ph">Flagship projects below 6.0 / 10 — proactive communication recommended.</p>${_low.length? `<div class="actwrap">`+_low.slice(0,3).map(p=>`<div class="actcard"><div class="acth"><span class="actt">${p.name}</span><span class="prio" style="background:${moodColor(p.trust)}">${p.trust.toFixed(1)} / 10</span></div><div class="actf"><span class="actl">Status</span><span class="actv">${p.status}</span></div><div class="actf"><span class="actl">Why trust is low</span><span class="actv">${p.note}</span></div><div class="actf"><span class="actl">Recommended response</span><span class="actv">Publish a progress update with clear milestones and timelines, and address the specific concern directly.</span></div><div class="actf"><span class="actl">Suggested public message</span><span class="actv quote">“We hear the concerns about ${p.name}. Here is the current status (${p.status}) and what residents can expect next.”</span></div></div>`).join("")+`</div>` : `<div class="empty"><div class="et">All flagship projects are above the trust threshold</div><div class="es">No project is below 6.0 / 10 right now. Maintain current communication and keep publishing progress updates.</div></div>`}</div>`;
  const c=new Chart(document.getElementById('m8chart'),{type:'bar',data:{labels:PROJECTS.map(p=>p.name),datasets:[{data:PROJECTS.map(p=>p.trust),backgroundColor:PROJECTS.map(p=>moodColor(p.trust)),borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.x.toFixed(1)+" / 10"}}},scales:{x:{min:0,max:10,grid:{color:'#EFEDE6'}},y:{grid:{display:false}}}}});
  charts.push(c);
@@ -1041,14 +1052,14 @@ function m10(){
    </div>
    <div class="panel hot"><h3>Priority response playbook</h3><p class="ph">The three most urgent issues — owner, recommended response, a ready public line and whether to escalate.</p><div class="actwrap">${rows.slice(0,3).map(r=>{const rp=respOf(r.i.name);return actionCard({title:r.i.name,prio:r.a.prio,agency:rp.agency,rec:r.a.rec,msg:rp.msg,esc:escalateFlag(r.a.prio,0)});}).join("")}</div></div>
    <div class="panel"><h3>Severity, forecast &amp; recommended action</h3><p class="ph">Sorted by urgency (worst now or imminent first). Forecast = next quarter, ${CFG.nextQuarter}.</p>
-    <table class="tb"><thead><tr><th>Issue</th><th class="r">Now</th><th class="r">Forecast</th><th>Risk</th><th>Priority</th><th>Agency</th><th>Recommended action</th></tr></thead><tbody>
+    <table class="tb tbw"><thead><tr><th>Issue</th><th class="r">Now</th><th class="r">Forecast</th><th>Risk</th><th>Priority</th><th>Agency</th><th>Recommended action</th></tr></thead><tbody>
     ${rows.map(r=>{const rk=riskOf(r.fc);return `<tr>
-      <td><b>${r.i.name}</b></td>
-      <td class="r">${moodChip(r.cur)}</td>
-      <td class="r">${moodChip(r.fc)}</td>
-      <td><span class="prio" style="background:${rk[1]}">${rk[0]}</span></td>
-      <td><span class="prio" style="background:${pc[r.a.prio]}">${r.a.prio}</span></td>
-      <td style="font-size:12px;color:var(--muted)">${respOf(r.i.name).agency}</td><td style="font-size:12.5px">${r.a.rec}</td></tr>`;}).join("")}
+      <td data-label="Issue"><b>${r.i.name}</b></td>
+      <td class="r" data-label="Now">${moodChip(r.cur)}</td>
+      <td class="r" data-label="Forecast">${moodChip(r.fc)}</td>
+      <td data-label="Risk"><span class="prio" style="background:${rk[1]}">${rk[0]}</span></td>
+      <td data-label="Priority"><span class="prio" style="background:${pc[r.a.prio]}">${r.a.prio}</span></td>
+      <td style="font-size:12px;color:var(--muted)" data-label="Agency">${respOf(r.i.name).agency}</td><td style="font-size:12.5px" data-label="Recommended action">${r.a.rec}</td></tr>`;}).join("")}
     </tbody></table>
    </div>
    <div class="panel"><h3>Seasonal pattern — when each issue bites</h3><p class="ph">Average mood by calendar quarter, 2020–2026. Lower (darker) = the season that issue is typically worst — act ahead of it.</p>
@@ -1221,8 +1232,8 @@ function m13(){
      </div>
    </div>
    <div class="panel"><h3>What’s sourced vs modeled</h3><p class="ph">Every element, its basis, and how much to trust it. ‘Modeled’ = analyst estimate; ‘Sourced’ = tied to reported events; ‘Derived/Statistical’ = computed from the data.</p>
-     <table class="tb"><thead><tr><th>Element</th><th>Basis</th><th>Type</th></tr></thead><tbody>
-     ${BASIS.map(x=>`<tr><td><b>${x.e}</b></td><td style="font-size:12.5px;color:var(--muted)">${x.b}</td><td><span class="prio" style="background:${TCOL[x.t]||gc('--gray')}">${x.t}</span></td></tr>`).join("")}
+     <table class="tb tbw"><thead><tr><th>Element</th><th>Basis</th><th>Type</th></tr></thead><tbody>
+     ${BASIS.map(x=>`<tr><td data-label="Element"><b>${x.e}</b></td><td style="font-size:12.5px;color:var(--muted)" data-label="Basis">${x.b}</td><td data-label="Type"><span class="prio" style="background:${TCOL[x.t]||gc('--gray')}">${x.t}</span></td></tr>`).join("")}
      </tbody></table>
    </div>
    <div class="panel"><h3>Limitations</h3>
