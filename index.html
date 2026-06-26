@@ -1,11 +1,4 @@
 <!DOCTYPE html>
-<script type="application/json" id="cowork-artifact-meta">
-{
-  "name": "Lagos Citizen Mood Report",
-  "schemaVersion": 1,
-  "description": "Lagos Citizen Mood Report (June 2026): a 1-5 mood index, narrative, themes, and source links across 10 issues (traffic, roads, flooding, waste, cost of living, security, healthcare, education, housing, markets), read from Nairaland discussion plus Lagos news. Designed to be regenerated monthly."
-}
-</script>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -53,6 +46,7 @@ section.mod.active{display:block;}
 .panel h3{margin:0 0 4px;font-size:15px;}
 .panel .ph{color:var(--muted);font-size:12.5px;margin:0 0 12px;}
 .grid{display:grid;gap:16px;}
+.grid+.grid{margin-top:18px;} /* space between adjacent grids (e.g. Issues & Trends stats → cards) */
 .g2{grid-template-columns:1fr 1fr;}
 .g3{grid-template-columns:1fr 1fr 1fr;}
 .g4{grid-template-columns:repeat(4,1fr);}
@@ -1238,6 +1232,7 @@ function m13(){
    </div>
    <footer><b>In short.</b> GovernIQ turns public discussion into a consistent, trackable read of citizen mood. It is strongest as an early-warning and prioritisation tool; for high-stakes decisions, pair it with official data and on-the-ground verification.</footer>`;
 }
+
 
 /* state engine */
 let ISSUES,META,DAILY,COMPLAINTS,PRAISED,PROJECTS,LGAS,ANGER_LABELS,ANGER,SPIKES,ACTIONS,CFG,DRIVERS,KEYWORDS,STATE='lagos',CURRENT='1';
