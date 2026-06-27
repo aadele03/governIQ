@@ -639,8 +639,8 @@ const ICONS={
 };
 const NAVGROUPS=[
  ["Overview",[["1","Dashboard","dashboard"],["12","Executive Brief","brief"]]],
- ["Issues & trends",[["4","Issues & Trends","trend"],["5","Top Concerns","alert"]]], /* Modules disabled per request — re-enable by re-adding ["2","Mood Trajectory","line"] and/or ["3","Heatmap","grid"] */
- ["Citizen voice",[["9","Alerts","bolt"],["6","Praised Actions","check"],["8","Project Trust","building"]]],
+ ["Issues & trends",[["5","Top Concerns","alert"],["4","Issues & Trends","trend"]]], /* Modules disabled per request — re-enable by re-adding ["2","Mood Trajectory","line"] and/or ["3","Heatmap","grid"] */
+ ["Citizen voice",[["6","Praised Actions","check"],["8","Project Trust","building"]]], /* Alerts module ["9","Alerts","bolt"] removed per request — render code m9 retained; re-enable by re-adding the entry */
  /* ["Locations",[["7","Sentiment Map","pin"]]], — LGA / Sentiment Map module disabled per request; re-enable by uncommenting this line */
  ["Act & decide",[["10","Priority Actions","shield"],["11","Your Strategist","spark"]]],
  ["Reference",[["13","Methodology","info"]]]
@@ -809,7 +809,7 @@ function m4(){
  const start=Math.max(0,Q_LABELS.indexOf("2024 Q3")); // last 2 years
  const winLabels=Q_LABELS.slice(start);
  const cur=i=>i.scores[LAST],prv=i=>i.scores[LAST-1],fst=i=>i.scores[start];
- el.innerHTML=H('Issues & Trends','Each issue’s path over the past two years ('+Q_LABELS[start]+' → '+Q_LABELS[LAST]+') — latest score, change vs the previous quarter, and net change across the window. Each mini-trend is auto-scaled to its own range so the variance is visible. Events and sources are limited to the last two years.')+
+ el.innerHTML=H('Issues & Trends (2 years)','Each issue’s path over the past two years ('+Q_LABELS[start]+' → '+Q_LABELS[LAST]+') — latest score, change vs the previous quarter, and net change across the window. Each mini-trend is auto-scaled to its own range so the variance is visible. Events and sources are limited to the last two years.')+
   `<div class="grid g4">
      <div class="stat lead"><div class="lab">Issues tracked</div><div class="big">${ISSUES.length}</div><div class="sub">window ${Q_LABELS[start]} → ${Q_LABELS[LAST]}</div></div>
      <div class="stat"><div class="lab">Improving this quarter</div><div class="big up">${ISSUES.filter(i=>cur(i)-prv(i)>0.1).length}</div><div class="sub">vs previous quarter</div></div>
@@ -844,12 +844,10 @@ function m5(){
  const _byCat={};COMPLAINTS.forEach(c=>{const k=canonIssue(c.issue);_byCat[k]=(_byCat[k]||0)+1;});
  const _topCat=Object.keys(_byCat).sort((a,b)=>_byCat[b]-_byCat[a])[0]||'—';
  const _r=respOf(_top.issue),_ra=recOf(_top.issue),_prio=_ra?_ra.prio:prioFromV(_top.int);
- el.innerHTML=H('Top Citizen Concerns','The loudest grievances of the past three months ('+CFG.complaintsWindow+'), ranked by an intensity index from complaint volume and tone.')+
-  `<div class="grid g4">
+ el.innerHTML=H('Top Citizen Concerns (This quarter)','The loudest grievances of the past three months ('+CFG.complaintsWindow+'), ranked by an intensity index from complaint volume and tone.')+
+  `<div class="grid g2">
      <div class="stat lead"><div class="lab">Loudest concern now</div><div class="big nm">${_top.issue}</div><div class="sub">Intensity ${_top.int}/100</div></div>
-     <div class="stat"><div class="lab">Concerns tracked</div><div class="big">${COMPLAINTS.length}</div><div class="sub">window ${CFG.complaintsWindow}</div></div>
-     <div class="stat"><div class="lab">Most-cited category</div><div class="big nm">${_topCat}</div><div class="sub">${_byCat[_topCat]||0} of ${COMPLAINTS.length} concerns</div></div>
-     <div class="stat"><div class="lab">Emerging concerns</div><div class="big" style="color:${_emerging?gc('--o'):'inherit'}">${_emerging}</div><div class="sub">out-of-taxonomy signals</div></div>
+     <div class="stat"><div class="lab">Emerging concerns</div><div class="big" style="color:${_emerging?gc('--o'):'inherit'}">${_emerging}</div></div>
    </div>
    <div class="panel hot"><h3>Citizen concern summary — what to do about #1</h3><div class="actwrap" style="grid-template-columns:1fr">${actionCard({title:_top.issue+' — loudest concern',prio:_prio,agency:_r.agency,rec:_ra?_ra.rec:('Convene '+_r.agency+', verify the reports and publish a response timeline.'),msg:_r.msg,esc:escalateFlag(_prio,_top.int),src:_top.src})}</div></div>
    <div class="panel"><h3>All concerns, ranked by intensity</h3>${_sorted.slice(0,10).map((c,idx)=>{return `<div class="rank">
