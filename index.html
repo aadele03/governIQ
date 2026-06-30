@@ -1,11 +1,4 @@
 <!DOCTYPE html>
-<script type="application/json" id="cowork-artifact-meta">
-{
-  "name": "Lagos Citizen Mood Report",
-  "schemaVersion": 1,
-  "description": "Lagos Citizen Mood Report (June 2026): a 1-5 mood index, narrative, themes, and source links across 10 issues (traffic, roads, flooding, waste, cost of living, security, healthcare, education, housing, markets), read from Nairaland discussion plus Lagos news. Designed to be regenerated monthly."
-}
-</script>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -866,7 +859,7 @@ function m6(){
  el.innerHTML=H('Top Praised Government Actions','Initiatives '+CFG.demonym+' and observers welcomed over the past 12 months — the positives that lifted mood on their issues.')+
   `<div class="grid g3">
      <div class="stat lead"><div class="lab">Praised actions</div><div class="big">${PRAISED.length}</div><div class="sub">last 12 months</div></div>
-     <div class="stat"><div class="lab">Issues lifted</div><div class="big">${new Set(PRAISED.map(p=>canonIssue(p.issue))).size}</div><div class="sub">of 12 tracked issues</div></div>
+     <div class="stat"><div class="lab">Issues lifted</div><div class="big">${new Set(PRAISED.map(p=>canonIssue(p.issue))).size}</div><div class="sub">of ${ISSUES.length} tracked issues</div></div>
      <div class="stat"><div class="lab">Most-praised area</div><div class="big nm">${(function(){const c={};PRAISED.forEach(p=>{const k=canonIssue(p.issue);c[k]=(c[k]||0)+1;});return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||"—";})()}</div><div class="sub">where wins cluster</div></div>
    </div>
    <div class="grid g2">${PRAISED.map(p=>`<div class="card" style="border-left-color:var(--green)">
@@ -1183,7 +1176,7 @@ const KEYWORDS_lg=[
  {n:"Governance & taxation",k:"tax, multiple taxation, agbero levy, local govt, corruption, accountability"}
 ];
 const BASIS=[
- {e:"Issue mood scores (12 issues)",b:"Analyst-coded read of complaint-vs-praise volume & tone across the sources",t:"Modeled"},
+ {e:"Issue mood scores (all tracked issues)",b:"Analyst-coded read of complaint-vs-praise volume & tone across the sources",t:"Modeled"},
  {e:"Quarterly history 2020–2024",b:"Reconstructed by anchoring each quarter to major Lagos events",t:"Reconstructed"},
  {e:"Monthly view (Mood Trajectory)",b:"Interpolated between quarterly anchors",t:"Derived"},
  {e:"Top complaints & intensity",b:"Relative volume & tone of recent grievances",t:"Modeled"},
