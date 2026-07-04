@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Lagos Citizen Mood Report",
+  "schemaVersion": 1,
+  "description": "Lagos Citizen Mood Report (June 2026): a 1-5 mood index, narrative, themes, and source links across 10 issues (traffic, roads, flooding, waste, cost of living, security, healthcare, education, housing, markets), read from Nairaland discussion plus Lagos news. Designed to be regenerated monthly.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -45,6 +54,16 @@ section.mod.active{display:block;}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;box-shadow:0 1px 3px rgba(20,20,19,.04);}
 .panel h3{margin:0 0 4px;font-size:15px;}
 .panel .ph{color:var(--muted);font-size:12.5px;margin:0 0 12px;}
+.iag{display:flex;flex-direction:column;gap:10px;}
+.iag-card{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;background:var(--card);box-shadow:var(--sh-1);}
+.iag-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--soft);}
+.iag-name{font-weight:700;font-size:15px;color:var(--ink);line-height:1.25;}
+.iag-mood{flex:0 0 auto;font-size:15px;white-space:nowrap;}
+.iag-body{display:flex;flex-wrap:wrap;gap:14px;}
+.iag-chg{flex:1 1 240px;min-width:0;}
+.iag-lab{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:3px;}
+.iag-delta{font-weight:700;font-size:14px;margin-bottom:3px;}
+.iag-why{font-size:12px;line-height:1.5;color:var(--muted);}
 .grid{display:grid;gap:16px;}
 .grid+.grid{margin-top:18px;} /* space between adjacent grids (e.g. Issues & Trends stats → cards) */
 .g2{grid-template-columns:1fr 1fr;}
@@ -1145,10 +1164,10 @@ function m12(){
     <div class="stat"><div class="lab">Top near-term risk</div><div class="big nm" style="color:${moodColor(risks[0].fc)}">${risks[0].i.name}</div><div class="sub">${CFG.nextQuarter} forecast ${risks[0].fc.toFixed(1)}</div></div>
     <div class="stat"><div class="lab">Loudest grievance</div><div class="big nm" style="color:${moodColor(Math.max(1,Math.min(10,11-comp.int/10)))}">${comp.issue}</div><div class="sub">intensity ${comp.int}/100</div></div>
    </div>
-   <div class="panel"><h3>Issues at a glance — what moved &amp; why</h3><table class="tb"><thead><tr><th>Issue</th><th class="r">Mood</th><th>Since yesterday</th><th>Since last month</th></tr></thead><tbody>${[...ISSUES].sort((a,b)=>cur(a)-cur(b)).map(it=>{const dy=dY(it.key),dm=dM(it.key);const cell=(d,per)=>`<div class="${d!=null?cls(d):'flat'}" style="font-weight:600">${d!=null?arrow(d)+' '+sgn(d):'—'}</div><div style="font-size:11px;color:#6b6b66;line-height:1.4;margin-top:2px">${reasonOf(it,per,d)}</div>`;return `<tr><td><b>${it.name}</b></td><td class="r">${moodChip(cur(it))}</td><td style="max-width:320px">${cell(dy,'y')}</td><td style="max-width:320px">${cell(dm,'m')}</td></tr>`;}).join('')}</tbody></table><p class="ph" style="margin-top:8px">Day-on-day and one-month change for every tracked issue, each with the reason behind the move.</p></div>
    <div class="panel"><h3>Bottom line</h3>
      <p class="lead-para">${CFG.state}’s overall mood sits at <b>${city.toFixed(1)} / 10 (${moodLabel(city)})</b>, ${chgWord==="flat"?"broadly flat":chgWord} versus last quarter. The deepest pain points remain <b>${worst3.map(i=>i.name).join(", ")}</b>, while <b>${best.name}</b> (${cur(best).toFixed(1)}) is the bright spot. The loudest current grievance is <b>${comp.issue.toLowerCase()}</b>, and the most urgent risk heading into ${CFG.nextQuarter} is <b>${risks[0].i.name}</b> on ${DRIVERS[risks[0].i.key]||"seasonal pressure"}. ${improvers.length?`Encouragingly, <b>${improvers[0].name}</b> improved this quarter.`:""}</p>
    </div>
+   <div class="panel"><h3>Issues at a glance — what moved &amp; why</h3><div class="iag">${[...ISSUES].sort((a,b)=>cur(a)-cur(b)).map(it=>{const dy=dY(it.key),dm=dM(it.key);const dcol=d=>d==null?'var(--muted)':(d>0.05?'var(--g1)':(d<-0.05?'var(--r)':'var(--muted)'));const blk=(d,per,lab)=>`<div class="iag-chg"><div class="iag-lab">${lab}</div><div class="iag-delta" style="color:${dcol(d)}">${d!=null?arrow(d)+' '+sgn(d):'—'}</div><div class="iag-why">${reasonOf(it,per,d)}</div></div>`;return `<div class="iag-card"><div class="iag-head"><span class="iag-name">${it.name}</span><span class="iag-mood">${moodChip(cur(it))}</span></div><div class="iag-body">${blk(dy,'y','Since yesterday')}${blk(dm,'m','Since last month')}</div></div>`;}).join('')}</div><p class="ph" style="margin-top:12px">Day-on-day and one-month change for every tracked issue, each with the reason behind the move.</p></div>
    <div class="grid g2">
      <div class="panel"><h3 style="color:${gc('--r')}">⚠ What’s deteriorating</h3>
        <ul class="exlist">${(decliners.length?decliners:[worst3[0]]).slice(0,5).map(i=>`<li><b>${i.name}</b> — now ${cur(i).toFixed(1)} / 10 ${cur(i)-prv(i)<-0.1?`(${arrow(cur(i)-prv(i))} ${sgn(cur(i)-prv(i))} vs last Q)`:`(${moodLabel(cur(i))})`}</li>`).join("")}</ul>
